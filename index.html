@@ -25,6 +25,9 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
     .logo {
@@ -32,11 +35,34 @@
       font-weight: bold;
     }
 
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
     nav a {
       color: white;
       text-decoration: none;
-      margin-left: 20px;
       font-size: 14px;
+    }
+
+    .carrinho-btn {
+      background: white;
+      color: #111;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .contador {
+      background: #111;
+      color: white;
+      padding: 2px 6px;
+      border-radius: 50%;
+      margin-left: 4px;
     }
 
     .hero {
@@ -114,12 +140,20 @@
 
     .comprar {
       display: block;
+      width: 100%;
       text-align: center;
       background: #111;
       color: white;
       padding: 12px;
-      text-decoration: none;
+      border: none;
       border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 15px;
+    }
+
+    .comprar:hover {
+      background: #333;
     }
 
     .sobre {
@@ -140,18 +174,160 @@
       font-size: 13px;
     }
 
+    /* CARRINHO */
+
+    .carrinho {
+      position: fixed;
+      top: 0;
+      right: -100%;
+      width: 380px;
+      max-width: 100%;
+      height: 100vh;
+      background: white;
+      z-index: 1000;
+      box-shadow: -5px 0 20px rgba(0,0,0,0.2);
+      transition: 0.3s;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .carrinho.aberto {
+      right: 0;
+    }
+
+    .carrinho-header {
+      background: #111;
+      color: white;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .fechar {
+      background: transparent;
+      color: white;
+      border: none;
+      font-size: 25px;
+      cursor: pointer;
+    }
+
+    .itens {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    .item-carrinho {
+      border-bottom: 1px solid #ddd;
+      padding: 15px 0;
+    }
+
+    .item-carrinho h3 {
+      margin-bottom: 8px;
+    }
+
+    .item-preco {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .quantidade {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .quantidade button {
+      width: 30px;
+      height: 30px;
+      border: none;
+      background: #111;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    .remover {
+      background: none !important;
+      color: #d00 !important;
+      width: auto !important;
+      font-size: 13px !important;
+      margin-left: 10px;
+    }
+
+    .vazio {
+      text-align: center;
+      color: #777;
+      margin-top: 50px;
+    }
+
+    .carrinho-footer {
+      padding: 20px;
+      border-top: 1px solid #ddd;
+    }
+
+    .total {
+      display: flex;
+      justify-content: space-between;
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+
+    .finalizar {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      background: #111;
+      color: white;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .limpar {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      border: 1px solid #ddd;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .fundo-carrinho {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 999;
+    }
+
+    .fundo-carrinho.aberto {
+      display: block;
+    }
+
     @media (max-width: 600px) {
       header {
         flex-direction: column;
         gap: 15px;
       }
 
-      nav a {
-        margin: 0 7px;
+      nav {
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
       }
 
       .hero h1 {
         font-size: 38px;
+      }
+
+      .carrinho {
+        width: 100%;
       }
     }
   </style>
@@ -166,6 +342,11 @@
       <a href="#inicio">Início</a>
       <a href="#produtos">Produtos</a>
       <a href="#sobre">Sobre</a>
+
+      <button class="carrinho-btn" onclick="abrirCarrinho()">
+        🛒 Carrinho
+        <span class="contador" id="contador">0</span>
+      </button>
     </nav>
   </header>
 
@@ -182,31 +363,49 @@
 
       <div class="produto">
         <div class="foto">Foto do produto</div>
+
         <div class="info">
           <h3>Calça Baggy</h3>
           <p>Estilo confortável para o seu dia a dia.</p>
+
           <div class="preco">R$ 89,90</div>
-          <a class="comprar" href="#">Comprar</a>
+
+          <button class="comprar"
+            onclick="adicionarCarrinho('Calça Baggy', 89.90)">
+            🛒 Comprar
+          </button>
         </div>
       </div>
 
       <div class="produto">
         <div class="foto">Foto do produto</div>
+
         <div class="info">
           <h3>Moletom ThreeStyle</h3>
           <p>Visual urbano e confortável.</p>
+
           <div class="preco">R$ 119,90</div>
-          <a class="comprar" href="#">Comprar</a>
+
+          <button class="comprar"
+            onclick="adicionarCarrinho('Moletom ThreeStyle', 119.90)">
+            🛒 Comprar
+          </button>
         </div>
       </div>
 
       <div class="produto">
         <div class="foto">Foto do produto</div>
+
         <div class="info">
           <h3>Camiseta Oversized</h3>
           <p>Modelagem moderna para completar o look.</p>
+
           <div class="preco">R$ 69,90</div>
-          <a class="comprar" href="#">Comprar</a>
+
+          <button class="comprar"
+            onclick="adicionarCarrinho('Camiseta Oversized', 69.90)">
+            🛒 Comprar
+          </button>
         </div>
       </div>
 
@@ -215,6 +414,7 @@
 
   <section class="sobre" id="sobre">
     <h2>Sobre a ThreeStyle</h2>
+
     <p>
       A ThreeStyle nasceu para trazer peças com estilo,
       conforto e personalidade para quem gosta de se vestir do seu jeito.
@@ -224,6 +424,283 @@
   <footer>
     © 2026 ThreeStyle — Todos os direitos reservados.
   </footer>
+
+
+  <!-- FUNDO DO CARRINHO -->
+  <div class="fundo-carrinho" id="fundo" onclick="fecharCarrinho()"></div>
+
+
+  <!-- CARRINHO -->
+  <div class="carrinho" id="carrinho">
+
+    <div class="carrinho-header">
+      <h2>🛒 Seu carrinho</h2>
+
+      <button class="fechar" onclick="fecharCarrinho()">×</button>
+    </div>
+
+    <div class="itens" id="itens">
+      <div class="vazio">
+        Seu carrinho está vazio.
+      </div>
+    </div>
+
+    <div class="carrinho-footer">
+
+      <div class="total">
+        <span>Total:</span>
+        <span id="total">R$ 0,00</span>
+      </div>
+
+      <button class="finalizar" onclick="finalizarCompra()">
+        Finalizar pedido
+      </button>
+
+      <button class="limpar" onclick="limparCarrinho()">
+        Esvaziar carrinho
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <script>
+
+    let carrinho = JSON.parse(localStorage.getItem("threeStyleCarrinho")) || [];
+
+
+    function salvarCarrinho() {
+      localStorage.setItem(
+        "threeStyleCarrinho",
+        JSON.stringify(carrinho)
+      );
+    }
+
+
+    function adicionarCarrinho(nome, preco) {
+
+      const produto = carrinho.find(item => item.nome === nome);
+
+      if (produto) {
+
+        produto.quantidade++;
+
+      } else {
+
+        carrinho.push({
+          nome: nome,
+          preco: preco,
+          quantidade: 1
+        });
+
+      }
+
+      salvarCarrinho();
+      atualizarCarrinho();
+      abrirCarrinho();
+    }
+
+
+    function aumentar(nome) {
+
+      const produto = carrinho.find(item => item.nome === nome);
+
+      if (produto) {
+        produto.quantidade++;
+      }
+
+      salvarCarrinho();
+      atualizarCarrinho();
+    }
+
+
+    function diminuir(nome) {
+
+      const produto = carrinho.find(item => item.nome === nome);
+
+      if (!produto) return;
+
+      produto.quantidade--;
+
+      if (produto.quantidade <= 0) {
+        carrinho = carrinho.filter(item => item.nome !== nome);
+      }
+
+      salvarCarrinho();
+      atualizarCarrinho();
+    }
+
+
+    function remover(nome) {
+
+      carrinho = carrinho.filter(item => item.nome !== nome);
+
+      salvarCarrinho();
+      atualizarCarrinho();
+    }
+
+
+    function limparCarrinho() {
+
+      carrinho = [];
+
+      salvarCarrinho();
+      atualizarCarrinho();
+    }
+
+
+    function atualizarCarrinho() {
+
+      const itens = document.getElementById("itens");
+      const contador = document.getElementById("contador");
+      const totalElemento = document.getElementById("total");
+
+      if (carrinho.length === 0) {
+
+        itens.innerHTML = `
+          <div class="vazio">
+            Seu carrinho está vazio.
+          </div>
+        `;
+
+        contador.textContent = "0";
+        totalElemento.textContent = "R$ 0,00";
+
+        return;
+      }
+
+
+      let total = 0;
+      let quantidadeTotal = 0;
+
+      itens.innerHTML = "";
+
+
+      carrinho.forEach(item => {
+
+        total += item.preco * item.quantidade;
+
+        quantidadeTotal += item.quantidade;
+
+
+        const div = document.createElement("div");
+
+        div.className = "item-carrinho";
+
+        div.innerHTML = `
+          <h3>${item.nome}</h3>
+
+          <div class="item-preco">
+            R$ ${item.preco.toFixed(2).replace(".", ",")}
+          </div>
+
+          <div class="quantidade">
+
+            <button onclick="diminuir('${item.nome}')">
+              −
+            </button>
+
+            <strong>${item.quantidade}</strong>
+
+            <button onclick="aumentar('${item.nome}')">
+              +
+            </button>
+
+            <button
+              class="remover"
+              onclick="remover('${item.nome}')">
+              Remover
+            </button>
+
+          </div>
+        `;
+
+        itens.appendChild(div);
+
+      });
+
+
+      contador.textContent = quantidadeTotal;
+
+      totalElemento.textContent =
+        "R$ " + total.toFixed(2).replace(".", ",");
+
+    }
+
+
+    function abrirCarrinho() {
+
+      document
+        .getElementById("carrinho")
+        .classList.add("aberto");
+
+      document
+        .getElementById("fundo")
+        .classList.add("aberto");
+
+    }
+
+
+    function fecharCarrinho() {
+
+      document
+        .getElementById("carrinho")
+        .classList.remove("aberto");
+
+      document
+        .getElementById("fundo")
+        .classList.remove("aberto");
+
+    }
+
+
+    function finalizarCompra() {
+
+      if (carrinho.length === 0) {
+
+        alert("Seu carrinho está vazio!");
+
+        return;
+      }
+
+      let mensagem = "Olá! Quero fazer um pedido na ThreeStyle:%0A%0A";
+
+      let total = 0;
+
+      carrinho.forEach(item => {
+
+        const subtotal = item.preco * item.quantidade;
+
+        total += subtotal;
+
+        mensagem +=
+          "• " +
+          item.nome +
+          " x" +
+          item.quantidade +
+          " — R$ " +
+          subtotal.toFixed(2).replace(".", ",") +
+          "%0A";
+
+      });
+
+
+      mensagem +=
+        "%0ATotal: R$ " +
+        total.toFixed(2).replace(".", ",");
+
+
+      alert(
+        "Carrinho pronto! Para ativar o envio do pedido pelo WhatsApp, precisamos colocar o número da ThreeStyle no código."
+      );
+
+    }
+
+
+    atualizarCarrinho();
+
+  </script>
 
 </body>
 </html>
